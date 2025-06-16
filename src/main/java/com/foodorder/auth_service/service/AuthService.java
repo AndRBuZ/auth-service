@@ -3,13 +3,11 @@ package com.foodorder.auth_service.service;
 import com.foodorder.auth_service.dto.request.AuthRegisterDto;
 import com.foodorder.auth_service.dto.request.UserCreateDto;
 import com.foodorder.auth_service.dto.response.AuthResponseDto;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Slf4j
 @Service
 public class AuthService {
     private final RestTemplate restTemplate;
