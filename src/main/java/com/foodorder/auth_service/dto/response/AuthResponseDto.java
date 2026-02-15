@@ -1,4 +1,3 @@
 package com.foodorder.auth_service.dto.response;
 
-public record AuthResponseDto(Long id, String name, String email) {}
-
+public record AuthResponseDto<T>(boolean success, T data, String message) {}
