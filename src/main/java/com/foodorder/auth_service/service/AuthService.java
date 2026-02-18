@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -33,30 +34,35 @@ public class AuthService {
         return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());
     }
 
-    public ResponseEntity<AuthResponseDto> login(UserLoginDto dto) {
-        ResponseEntity<UserCredentialsDto> userResponse = restTemplate.getForEntity(
-                "http://user-service:8081/users/email/" + dto.getEmail(),
-                UserCredentialsDto.class,
-                dto
-        );
+    public ResponseEntity<?> login(UserLoginDto dto) {
+        try {
+            ResponseEntity<UserCredentialsDto> userResponse = restTemplate.getForEntity(
+                    "http://user-service:8081/users/email/" + dto.getEmail(),
+                    UserCredentialsDto.class,
+                    dto
+            );
 
-        UserDto user = new UserDto(
-                userResponse.getBody().getId(),
-                userResponse.getBody().getName(),
-                userResponse.getBody().getEmail()
-        );
+            UserDto user = new UserDto(
+                    userResponse.getBody().getId(),
+                    userResponse.getBody().getName(),
+                    userResponse.getBody().getEmail()
+            );
 
-        HttpStatus status;
-        AuthResponseDto resp;
-        if (BCrypt.checkpw(dto.getPassword(), userResponse.getBody().getPassword())) {
-            status = HttpStatus.OK;
-            resp = new AuthResponseDto(true, user, "Login successful");
-        } else {
-            status = HttpStatus.UNAUTHORIZED;
-            resp = new AuthResponseDto(false, null, "Invalid credentials");
+            HttpStatus status;
+            AuthResponseDto resp;
+            if (BCrypt.checkpw(dto.getPassword(), userResponse.getBody().getPassword())) {
+                status = HttpStatus.OK;
+                resp = new AuthResponseDto(true, user, "Login successful");
+            } else {
+                status = HttpStatus.UNAUTHORIZED;
+                resp = new AuthResponseDto(false, null, "Invalid credentials");
+            }
+
+            return ResponseEntity.status(status).body(resp);
+
+        } catch (HttpStatusCodeException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
         }
-
-        return ResponseEntity.status(status).body(resp);
     }
 
     private String hashPassword(String rawPassword) {
