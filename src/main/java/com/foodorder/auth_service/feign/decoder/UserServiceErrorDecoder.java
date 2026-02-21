@@ -1,9 +1,11 @@
-package com.foodorder.auth_service.feignClient.decoder;
+package com.foodorder.auth_service.feign.decoder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.foodorder.auth_service.exception.UserInvalidCredentialsException;
 import com.foodorder.auth_service.exception.UserNotFoundException;
-import com.foodorder.auth_service.exception.dto.ErrorResponse;
+import com.foodorder.auth_service.exception.dto.ExceptionMessage;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 
@@ -15,11 +17,16 @@ public class UserServiceErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
-        ErrorResponse message;
+        ObjectMapper mapper = new ObjectMapper();
+        // Регистрируем модуль для LocalDateTime
+        mapper.registerModule(new JavaTimeModule());
+        // Отключаем сериализацию LocalDateTime в timestamp
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        ExceptionMessage message;
 
         try (InputStream bodyIs = response.body().asInputStream()) {
-            ObjectMapper mapper = new ObjectMapper();
-            message = mapper.readValue(bodyIs, ErrorResponse.class);
+            message = mapper.readValue(bodyIs, ExceptionMessage.class);
         } catch (IOException e) {
             return new Exception(e.getMessage());
         }

@@ -5,64 +5,47 @@ import com.foodorder.auth_service.dto.request.UserCreateDto;
 import com.foodorder.auth_service.dto.request.UserLoginDto;
 import com.foodorder.auth_service.dto.response.AuthResponseDto;
 import com.foodorder.auth_service.dto.response.UserCredentialsDto;
-import com.foodorder.auth_service.dto.response.UserDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.foodorder.auth_service.dto.response.UserPublicDto;
+import com.foodorder.auth_service.exception.UserInvalidCredentialsException;
+import com.foodorder.auth_service.feign.client.UserRestClient;
+import com.foodorder.auth_service.mapper.UserMapper;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AuthService {
-    private final RestTemplate restTemplate;
+    private final UserRestClient userRestClient;
+    private final UserMapper userMapper;
 
-    public AuthService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public AuthService(UserRestClient userRestClient, UserMapper userMapper) {
+        this.userRestClient = userRestClient;
+        this.userMapper = userMapper;
     }
 
-    public ResponseEntity<AuthResponseDto> register(AuthRegisterDto dto) {
+    public AuthResponseDto register(AuthRegisterDto dto) {
         String password = hashPassword(dto.getPassword());
 
-        UserCreateDto userCreateDto = new UserCreateDto(
-                dto.getName(),
-                dto.getEmail(),
-                password
-        );
+        UserCreateDto userCreateDto = userMapper.toCreateDto(dto, password);
 
-        ResponseEntity<AuthResponseDto> resp = restTemplate.postForEntity("http://user-service:8081/users", userCreateDto, AuthResponseDto.class);
-        return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());
+        UserPublicDto userPublicDto = userRestClient.createUser(userCreateDto);
+
+        return new AuthResponseDto(true, userPublicDto, "Registration success");
     }
 
-    public ResponseEntity<?> login(UserLoginDto dto) {
-        try {
-            ResponseEntity<UserCredentialsDto> userResponse = restTemplate.getForEntity(
-                    "http://user-service:8081/users/email/" + dto.getEmail(),
-                    UserCredentialsDto.class,
-                    dto
+    public AuthResponseDto login(UserLoginDto dto) {
+            UserCredentialsDto userResponse = userRestClient.getUserCredentialsByEmail(dto.getEmail());
+
+            UserPublicDto user = new UserPublicDto(
+                    userResponse.getId(),
+                    userResponse.getName(),
+                    userResponse.getEmail()
             );
 
-            UserDto user = new UserDto(
-                    userResponse.getBody().getId(),
-                    userResponse.getBody().getName(),
-                    userResponse.getBody().getEmail()
-            );
-
-            HttpStatus status;
-            AuthResponseDto resp;
-            if (BCrypt.checkpw(dto.getPassword(), userResponse.getBody().getPassword())) {
-                status = HttpStatus.OK;
-                resp = new AuthResponseDto(true, user, "Login successful");
-            } else {
-                status = HttpStatus.UNAUTHORIZED;
-                resp = new AuthResponseDto(false, null, "Invalid credentials");
+            if (!BCrypt.checkpw(dto.getPassword(), userResponse.getPassword())) {
+                throw new UserInvalidCredentialsException();
             }
 
-            return ResponseEntity.status(status).body(resp);
-
-        } catch (HttpStatusCodeException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
-        }
+        return new AuthResponseDto<>(true, user, "Login successful");
     }
 
     private String hashPassword(String rawPassword) {

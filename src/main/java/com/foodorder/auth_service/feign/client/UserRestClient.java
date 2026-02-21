@@ -1,9 +1,9 @@
-package com.foodorder.auth_service.feignClient;
+package com.foodorder.auth_service.feign.client;
 
 import com.foodorder.auth_service.dto.request.UserCreateDto;
 import com.foodorder.auth_service.dto.response.UserCredentialsDto;
 import com.foodorder.auth_service.dto.response.UserPublicDto;
-import com.foodorder.auth_service.feignClient.decoder.UserServiceErrorDecoder;
+import com.foodorder.auth_service.feign.decoder.UserServiceErrorDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @Getter
 public class UserLoginDto {
-    @NotBlank
+    @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address", regexp = ".+@.+\\..+")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password is required")
     private String password;
 }
