@@ -33,17 +33,17 @@ public class AuthService {
     }
 
     public AuthResponseDto login(UserLoginDto dto) {
-            UserCredentialsDto userResponse = userRestClient.getUserCredentialsByEmail(dto.getEmail());
+        UserCredentialsDto userResponse = userRestClient.getUserCredentialsByEmail(dto.getEmail());
 
-            UserPublicDto user = new UserPublicDto(
-                    userResponse.getId(),
-                    userResponse.getName(),
-                    userResponse.getEmail()
-            );
+        UserPublicDto user = new UserPublicDto(
+                userResponse.getId(),
+                userResponse.getName(),
+                userResponse.getEmail()
+        );
 
-            if (!BCrypt.checkpw(dto.getPassword(), userResponse.getPassword())) {
-                throw new UserInvalidCredentialsException();
-            }
+        if (!BCrypt.checkpw(dto.getPassword(), userResponse.getPassword())) {
+            throw new UserInvalidCredentialsException();
+        }
 
         return new AuthResponseDto<>(true, user, "Login successful");
     }

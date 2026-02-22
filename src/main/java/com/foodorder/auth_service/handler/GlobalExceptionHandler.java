@@ -20,39 +20,39 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ExceptionMessage> handleUserNotFoundResponse(UserNotFoundException ex, HttpServletRequest request) {
-        ExceptionMessage exceptionMessage = new ExceptionMessage(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.name(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
+        ExceptionMessage exceptionMessage = ExceptionMessage.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.name())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
         return new ResponseEntity<>(exceptionMessage, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserInvalidCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ExceptionMessage> handleUserInvalidCredentialsResponse(UserInvalidCredentialsException ex, HttpServletRequest request) {
-        ExceptionMessage exceptionMessage = new ExceptionMessage(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.name(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
+        ExceptionMessage exceptionMessage = ExceptionMessage.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.name())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
         return new ResponseEntity<>(exceptionMessage, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionMessage> handlerValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
         String message = Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage();
-        ExceptionMessage exceptionMessage = new ExceptionMessage(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.name(),
-                message,
-                request.getRequestURI()
-        );
+        ExceptionMessage exceptionMessage = ExceptionMessage.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.name())
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
         return new ResponseEntity<>(exceptionMessage, HttpStatus.BAD_REQUEST);
     }
 }

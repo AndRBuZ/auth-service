@@ -31,7 +31,7 @@ public class UserServiceErrorDecoder implements ErrorDecoder {
             return new Exception(e.getMessage());
         }
         return switch (response.status()) {
-            case 400 -> new UserInvalidCredentialsException();
+            case 401 -> new UserInvalidCredentialsException();
             case 404 -> new UserNotFoundException();
             default -> errorDecoder.decode(methodKey, response);
         };
