@@ -7,8 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class AuthResponseDto<T> {
+public class LoginResponseDto {
     private boolean success;
     private UserPublicDto data;
+    private String token;
     private String message;
 }
