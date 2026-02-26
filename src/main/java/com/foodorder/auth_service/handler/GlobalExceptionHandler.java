@@ -27,6 +27,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
+
         return new ResponseEntity<>(exceptionMessage, HttpStatus.NOT_FOUND);
     }
 
@@ -40,6 +41,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
+
         return new ResponseEntity<>(exceptionMessage, HttpStatus.UNAUTHORIZED);
     }
 
@@ -53,6 +55,7 @@ public class GlobalExceptionHandler {
                 .message(message)
                 .path(request.getRequestURI())
                 .build();
+
         return new ResponseEntity<>(exceptionMessage, HttpStatus.BAD_REQUEST);
     }
 }

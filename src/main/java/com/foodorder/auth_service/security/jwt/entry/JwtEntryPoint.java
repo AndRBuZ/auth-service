@@ -1,7 +1,6 @@
 package com.foodorder.auth_service.security.jwt.entry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.foodorder.auth_service.exception.dto.ExceptionMessage;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,9 +15,12 @@ import java.time.LocalDateTime;
 
 @Component
 public class JwtEntryPoint implements AuthenticationEntryPoint {
-
     @Autowired
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+
+    public JwtEntryPoint(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {

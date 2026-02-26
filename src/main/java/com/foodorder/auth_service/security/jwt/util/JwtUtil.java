@@ -15,7 +15,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
+
     @Value("${jwt.secret}")
     private String secretFilePath;
     private SecretKey secretKey;
@@ -23,7 +23,6 @@ public class JwtUtil {
     private long jwtExpiration;
 
     public String generateToken(String userId) {
-
         return Jwts.builder()
                 .subject(userId)
                 .signWith(secretKey)
@@ -41,25 +40,11 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    public boolean isTokenValid(String token) {
-        try {
+    public void isTokenValid(String token) {
             Jwts.parser()
                     .verifyWith(secretKey)
                     .build()
                     .parseSignedClaims(token);
-
-            return true;
-        } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
-        }
-
-        return false;
     }
 
     @PostConstruct
