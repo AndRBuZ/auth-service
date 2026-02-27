@@ -35,6 +35,11 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = parseJwt(request);
 
+        if (jwt == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String userId = jwtUtil.getUserIdFromToken(jwt);
 

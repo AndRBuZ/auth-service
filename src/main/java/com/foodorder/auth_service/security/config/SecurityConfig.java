@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilterAfter(jwtFilter, ExceptionTranslationFilter.class)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtEntryPoint))
