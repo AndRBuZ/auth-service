@@ -1,16 +1,16 @@
 package com.foodorder.auth_service.service;
 
 import com.foodorder.auth_service.dto.request.AuthRegisterDto;
+import com.foodorder.auth_service.dto.request.RefreshTokenRequestDto;
 import com.foodorder.auth_service.dto.request.UserCreateDto;
 import com.foodorder.auth_service.dto.request.UserLoginDto;
-import com.foodorder.auth_service.dto.response.AuthResponseDto;
-import com.foodorder.auth_service.dto.response.LoginResponseDto;
-import com.foodorder.auth_service.dto.response.UserCredentialsDto;
-import com.foodorder.auth_service.dto.response.UserPublicDto;
+import com.foodorder.auth_service.dto.response.*;
 import com.foodorder.auth_service.exception.UserInvalidCredentialsException;
 import com.foodorder.auth_service.feign.client.UserRestClient;
 import com.foodorder.auth_service.mapper.UserMapper;
-import com.foodorder.auth_service.security.jwt.util.JwtUtil;
+import com.foodorder.auth_service.repository.RefreshTokenRepository;
+import com.foodorder.auth_service.security.jwt.service.JwtService;
+import com.foodorder.auth_service.security.jwt.service.RefreshTokenService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +18,16 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final UserRestClient userRestClient;
     private final UserMapper userMapper;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthService(UserRestClient userRestClient, UserMapper userMapper, JwtUtil jwtUtil) {
+    public AuthService(UserRestClient userRestClient, UserMapper userMapper, JwtService jwtService, RefreshTokenRepository refreshTokenRepository, RefreshTokenService refreshTokenService) {
         this.userRestClient = userRestClient;
         this.userMapper = userMapper;
-        this.jwtUtil = jwtUtil;
+        this.jwtService = jwtService;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public AuthResponseDto register(AuthRegisterDto dto) {
@@ -49,9 +53,16 @@ public class AuthService {
             throw new UserInvalidCredentialsException();
         }
 
-        String jwt = jwtUtil.generateToken(user.id().toString());
+        String jwt = jwtService.generateAccessToken(user.id().toString());
+        String refreshToken = jwtService.generateRefreshToken(user.id().toString());
 
-        return new LoginResponseDto(true, user, jwt,"Login successful");
+        refreshTokenService.saveNewSession(userResponse.getId(), refreshToken);
+
+        return new LoginResponseDto(true, user, jwt, refreshToken, "Login successful");
+    }
+
+    public RefreshTokenResponseDto refresh(RefreshTokenRequestDto dto) {
+        return refreshTokenService.refresh(dto.refreshToken());
     }
 
     private String hashPassword(String rawPassword) {

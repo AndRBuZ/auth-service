@@ -9,9 +9,11 @@ public class JwtResponseDto {
     private String token;
     private String type = "Bearer";
     private String userId;
+    private String refreshToken;
 
-    public JwtResponseDto(String token, String userId) {
+    public JwtResponseDto(String token, String userId, String refreshToken) {
         this.token = token;
         this.userId = userId;
+        this.refreshToken = refreshToken;
     }
 }

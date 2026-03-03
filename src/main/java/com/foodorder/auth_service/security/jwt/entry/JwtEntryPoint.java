@@ -5,7 +5,6 @@ import com.foodorder.auth_service.exception.dto.ExceptionMessage;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 
 @Component
 public class JwtEntryPoint implements AuthenticationEntryPoint {
-    @Autowired
     private final ObjectMapper objectMapper;
 
     public JwtEntryPoint(ObjectMapper objectMapper) {
@@ -30,8 +28,7 @@ public class JwtEntryPoint implements AuthenticationEntryPoint {
                 .error("Unauthorized")
                 .message(authException.getMessage())
                 .path(request.getRequestURI())
-                .build()
-        ;
+                .build();
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");

@@ -1,0 +1,33 @@
+package com.foodorder.auth_service.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.Instant;
+
+@Entity
+@Table(name = "refresh_tokens")
+@Getter
+@NoArgsConstructor
+public class RefreshToken {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Long userId;
+    private String token_hash;
+    private Instant created_at;
+    private Instant expired_at;
+
+    @Setter
+    @Column(nullable = false)
+    private boolean revoked = false;
+
+    public RefreshToken(Long userId, String tokenHash, Instant createdAt, Instant expiredAt) {
+        this.userId = userId;
+        this.token_hash = tokenHash;
+        this.created_at = createdAt;
+        this.expired_at = expiredAt;
+    }
+}
