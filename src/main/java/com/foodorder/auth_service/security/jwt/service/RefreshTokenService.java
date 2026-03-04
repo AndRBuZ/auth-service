@@ -57,7 +57,7 @@ public class RefreshTokenService {
     private void verifySession(String token, RefreshToken session) {
         if (session.isRevoked()) throw new BadCredentialsException("Token revoked");
 
-        if (session.getExpired_at().isBefore(Instant.now())) throw new BadCredentialsException("Token expired");
+        if (session.getExpiredAt().isBefore(Instant.now())) throw new BadCredentialsException("Token expired");
 
         if (!hashRefreshToken(token).equals(session.getToken_hash())) throw new BadCredentialsException("Token mismatch");
     }

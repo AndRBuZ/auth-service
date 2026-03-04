@@ -17,8 +17,8 @@ public class RefreshToken {
     private Long id;
     private Long userId;
     private String token_hash;
-    private Instant created_at;
-    private Instant expired_at;
+    private Instant createdAt;
+    private Instant expiredAt;
 
     @Setter
     @Column(nullable = false)
@@ -27,7 +27,7 @@ public class RefreshToken {
     public RefreshToken(Long userId, String tokenHash, Instant createdAt, Instant expiredAt) {
         this.userId = userId;
         this.token_hash = tokenHash;
-        this.created_at = createdAt;
-        this.expired_at = expiredAt;
+        this.createdAt = createdAt;
+        this.expiredAt = expiredAt;
     }
 }
