@@ -1,32 +1,68 @@
 package com.foodorder.auth_service.service;
 
 import com.foodorder.auth_service.dto.request.AuthRegisterDto;
+import com.foodorder.auth_service.dto.request.RefreshTokenRequestDto;
 import com.foodorder.auth_service.dto.request.UserCreateDto;
-import com.foodorder.auth_service.dto.response.AuthResponseDto;
-import org.springframework.http.ResponseEntity;
+import com.foodorder.auth_service.dto.request.UserLoginDto;
+import com.foodorder.auth_service.dto.response.*;
+import com.foodorder.auth_service.exception.UserInvalidCredentialsException;
+import com.foodorder.auth_service.feign.client.UserRestClient;
+import com.foodorder.auth_service.mapper.UserMapper;
+import com.foodorder.auth_service.repository.RefreshTokenRepository;
+import com.foodorder.auth_service.security.jwt.service.JwtService;
+import com.foodorder.auth_service.security.jwt.service.RefreshTokenService;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AuthService {
-    private final RestTemplate restTemplate;
+    private final UserRestClient userRestClient;
+    private final UserMapper userMapper;
+    private final JwtService jwtService;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public AuthService(UserRestClient userRestClient, UserMapper userMapper, JwtService jwtService, RefreshTokenRepository refreshTokenRepository, RefreshTokenService refreshTokenService) {
+        this.userRestClient = userRestClient;
+        this.userMapper = userMapper;
+        this.jwtService = jwtService;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
-    public ResponseEntity<AuthResponseDto> register(AuthRegisterDto dto) {
+    public AuthResponseDto register(AuthRegisterDto dto) {
         String password = hashPassword(dto.getPassword());
 
-        UserCreateDto userCreateDto = new UserCreateDto(
-                dto.getName(),
-                dto.getEmail(),
-                password
+        UserCreateDto userCreateDto = userMapper.toCreateDto(dto, password);
+
+        UserPublicDto userPublicDto = userRestClient.createUser(userCreateDto);
+
+        return new AuthResponseDto(true, userPublicDto, "Registration success");
+    }
+
+    public LoginResponseDto login(UserLoginDto dto) {
+        UserCredentialsDto userResponse = userRestClient.getUserCredentialsByEmail(dto.getEmail());
+
+        UserPublicDto user = new UserPublicDto(
+                userResponse.getId(),
+                userResponse.getName(),
+                userResponse.getEmail()
         );
 
-        ResponseEntity<AuthResponseDto> resp = restTemplate.postForEntity("http://user-service:8081/users", userCreateDto, AuthResponseDto.class);
-        return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());
+        if (!BCrypt.checkpw(dto.getPassword(), userResponse.getPassword())) {
+            throw new UserInvalidCredentialsException();
+        }
+
+        String jwt = jwtService.generateAccessToken(user.id().toString());
+        String refreshToken = jwtService.generateRefreshToken(user.id().toString());
+
+        refreshTokenService.saveNewSession(userResponse.getId(), refreshToken);
+
+        return new LoginResponseDto(true, user, jwt, refreshToken, "Login successful");
+    }
+
+    public RefreshTokenResponseDto refresh(RefreshTokenRequestDto dto) {
+        return refreshTokenService.refresh(dto.refreshToken());
     }
 
     private String hashPassword(String rawPassword) {
