@@ -32,7 +32,7 @@ COPY . .
 VOLUME /app
 
 EXPOSE 8080
-EXPOSE 5005
+EXPOSE 5006
 
 # Команда для запуска с поддержкой горячей перезагрузки
-CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-Dspring.devtools.restart.enabled=true"]
+CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006", "-Dspring.devtools.restart.enabled=true"]
