@@ -67,7 +67,7 @@ public class RefreshTokenService {
 
         if (session.getExpiredAt().isBefore(Instant.now())) throw new BadCredentialsException("Token expired");
 
-        if (!hashRefreshToken(token).equals(session.getToken_hash())) throw new BadCredentialsException("Token mismatch");
+        if (!hashRefreshToken(token).equals(session.getTokenHash())) throw new BadCredentialsException("Token mismatch");
     }
 
     private void rotateSession(RefreshToken session) {

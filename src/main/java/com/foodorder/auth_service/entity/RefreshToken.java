@@ -16,7 +16,7 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long userId;
-    private String token_hash;
+    private String tokenHash;
     private Instant createdAt;
     private Instant expiredAt;
 
@@ -26,7 +26,7 @@ public class RefreshToken {
 
     public RefreshToken(Long userId, String tokenHash, Instant createdAt, Instant expiredAt) {
         this.userId = userId;
-        this.token_hash = tokenHash;
+        this.tokenHash = tokenHash;
         this.createdAt = createdAt;
         this.expiredAt = expiredAt;
     }
