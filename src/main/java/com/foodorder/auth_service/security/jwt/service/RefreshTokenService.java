@@ -23,9 +23,11 @@ public class RefreshTokenService {
     public RefreshTokenResponseDto refresh(String refreshToken) {
         Claims claims = validateJwt(refreshToken);
 
+        String hashToken = hashRefreshToken(refreshToken);
+
         long userId = Long.parseLong(claims.getSubject());
 
-        RefreshToken session = loadSession(userId);
+        RefreshToken session = loadSession(hashToken);
 
         verifySession(refreshToken, session);
 
@@ -47,7 +49,7 @@ public class RefreshTokenService {
     public void deleteSession(String refreshedToken) {
         Claims claims = validateJwt(refreshedToken);
 
-        RefreshToken session = loadSession(Long.parseLong(claims.getSubject()));
+        RefreshToken session = loadSession(hashRefreshToken(refreshedToken));
 
         rotateSession(session);
     }
@@ -58,8 +60,8 @@ public class RefreshTokenService {
         return jwtService.extractRefreshClaims(token);
     }
 
-    private RefreshToken loadSession(long userId) {
-        return repository.getByUserId(userId).orElseThrow(TokenNotFoundException::new);
+    private RefreshToken loadSession(String hashToken) {
+        return repository.getByTokenHash(hashToken).orElseThrow(TokenNotFoundException::new);
     }
 
     private void verifySession(String token, RefreshToken session) {
@@ -67,7 +69,7 @@ public class RefreshTokenService {
 
         if (session.getExpiredAt().isBefore(Instant.now())) throw new BadCredentialsException("Token expired");
 
-        if (!hashRefreshToken(token).equals(session.getTokenHash())) throw new BadCredentialsException("Token mismatch");
+//        if (!hashRefreshToken(token).equals(session.getTokenHash())) throw new BadCredentialsException("Token mismatch");
     }
 
     private void rotateSession(RefreshToken session) {

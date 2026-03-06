@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> getByUserId(Long userId);
 
+    Optional<RefreshToken> getByTokenHash(String token);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             DELETE FROM RefreshToken t
