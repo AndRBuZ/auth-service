@@ -19,14 +19,12 @@ public class AuthService {
     private final UserRestClient userRestClient;
     private final UserMapper userMapper;
     private final JwtService jwtService;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenService refreshTokenService;
 
     public AuthService(UserRestClient userRestClient, UserMapper userMapper, JwtService jwtService, RefreshTokenRepository refreshTokenRepository, RefreshTokenService refreshTokenService) {
         this.userRestClient = userRestClient;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
-        this.refreshTokenRepository = refreshTokenRepository;
         this.refreshTokenService = refreshTokenService;
     }
 
@@ -63,6 +61,10 @@ public class AuthService {
 
     public RefreshTokenResponseDto refresh(RefreshTokenRequestDto dto) {
         return refreshTokenService.refresh(dto.refreshToken());
+    }
+
+    public void logout(RefreshTokenRequestDto dto) {
+        refreshTokenService.deleteSession(dto.refreshToken());
     }
 
     private String hashPassword(String rawPassword) {

@@ -9,7 +9,7 @@ import com.foodorder.auth_service.dto.response.LoginResponseDto;
 import com.foodorder.auth_service.dto.response.RefreshTokenResponseDto;
 import com.foodorder.auth_service.service.AuthService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -45,5 +45,11 @@ public class AuthController {
     public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequestDto dto) {
         RefreshTokenResponseDto responseDto = authService.refresh(dto);
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody RefreshTokenRequestDto dto) {
+        authService.logout(dto);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -44,6 +44,14 @@ public class RefreshTokenService {
         repository.save(token);
     }
 
+    public void deleteSession(String refreshedToken) {
+        Claims claims = validateJwt(refreshedToken);
+
+        RefreshToken session = loadSession(Long.parseLong(claims.getSubject()));
+
+        rotateSession(session);
+    }
+
     private Claims validateJwt(String token) {
         if (!jwtService.validateRefreshToken(token)) throw new BadCredentialsException("Invalid refresh token");
 
