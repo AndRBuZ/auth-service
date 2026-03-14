@@ -32,8 +32,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDto dto) {
         LoginResponseDto responseDto = authService.login(dto);
-        return ResponseEntity.ok(new JwtResponseDto(responseDto.getToken(),
-                responseDto.getData().id().toString(), responseDto.getRefreshToken()));
+        return ResponseEntity.ok(new JwtResponseDto(responseDto.token(),
+                responseDto.data().id().toString(), responseDto.refreshToken()));
     }
 
     @GetMapping("/test")

@@ -1,14 +1,4 @@
 package com.foodorder.auth_service.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@AllArgsConstructor
-public class AuthResponseDto<T> {
-    private boolean success;
-    private UserPublicDto data;
-    private String message;
+public record AuthResponseDto(boolean success, UserPublicDto data, String message) {
 }
