@@ -4,12 +4,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
-@Getter
-public class UserLoginDto {
+public record UserLoginDto(
     @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address", regexp = ".+@.+\\..+")
-    private String email;
+    String email,
 
     @NotBlank(message = "Password is required")
-    private String password;
-}
+    String password
+) {}

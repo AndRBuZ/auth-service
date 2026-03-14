@@ -11,16 +11,16 @@ public class UserMapper {
 
     public UserPublicDto toPublicDto(UserCredentialsDto dto) {
         return new UserPublicDto(
-                dto.getId(),
-                dto.getName(),
-                dto.getEmail()
+                dto.id(),
+                dto.name(),
+                dto.name()
         );
     }
 
     public UserCreateDto toCreateDto(AuthRegisterDto dto, String hashedPassword) {
         return new UserCreateDto(
-                dto.getName(),
-                dto.getEmail(),
+                dto.name(),
+                dto.email(),
                 hashedPassword
         );
     }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface UserRestClient {
     @GetMapping("/users/email/{email}")
     UserCredentialsDto getUserCredentialsByEmail(
-            @PathVariable("email") String email
+            @PathVariable String email
     );
 
     @PostMapping("/users")

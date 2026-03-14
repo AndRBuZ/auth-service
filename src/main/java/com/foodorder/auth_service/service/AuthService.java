@@ -29,7 +29,7 @@ public class AuthService {
     }
 
     public AuthResponseDto register(AuthRegisterDto dto) {
-        String password = hashPassword(dto.getPassword());
+        String password = hashPassword(dto.password());
 
         UserCreateDto userCreateDto = userMapper.toCreateDto(dto, password);
 
@@ -39,22 +39,22 @@ public class AuthService {
     }
 
     public LoginResponseDto login(UserLoginDto dto) {
-        UserCredentialsDto userResponse = userRestClient.getUserCredentialsByEmail(dto.getEmail());
+        UserCredentialsDto userResponse = userRestClient.getUserCredentialsByEmail(dto.email());
 
         UserPublicDto user = new UserPublicDto(
-                userResponse.getId(),
-                userResponse.getName(),
-                userResponse.getEmail()
+                userResponse.id(),
+                userResponse.name(),
+                userResponse.name()
         );
 
-        if (!BCrypt.checkpw(dto.getPassword(), userResponse.getPassword())) {
+        if (!BCrypt.checkpw(dto.password(), userResponse.password())) {
             throw new UserInvalidCredentialsException();
         }
 
         String jwt = jwtService.generateAccessToken(user.id().toString());
         String refreshToken = jwtService.generateRefreshToken(user.id().toString());
 
-        refreshTokenService.saveNewSession(userResponse.getId(), refreshToken);
+        refreshTokenService.saveNewSession(userResponse.id(), refreshToken);
 
         return new LoginResponseDto(true, user, jwt, refreshToken, "Login successful");
     }
