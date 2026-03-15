@@ -41,11 +41,7 @@ public class AuthService {
     public LoginResponseDto login(UserLoginDto dto) {
         UserCredentialsDto userResponse = userRestClient.getUserCredentialsByEmail(dto.email());
 
-        UserPublicDto user = new UserPublicDto(
-                userResponse.id(),
-                userResponse.name(),
-                userResponse.email()
-        );
+        UserPublicDto user = userMapper.toPublicDto(userResponse);
 
         if (!BCrypt.checkpw(dto.password(), userResponse.password())) {
             throw new UserInvalidCredentialsException();
