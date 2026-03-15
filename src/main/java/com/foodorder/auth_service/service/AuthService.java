@@ -44,7 +44,7 @@ public class AuthService {
         UserPublicDto user = new UserPublicDto(
                 userResponse.id(),
                 userResponse.name(),
-                userResponse.name()
+                userResponse.email()
         );
 
         if (!BCrypt.checkpw(dto.password(), userResponse.password())) {
